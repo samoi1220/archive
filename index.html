@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>書房 — 私人閱讀圖書館</title>
+<title>讀書室 ARCHIVE — 私人閱讀圖書館</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -708,6 +708,64 @@ body {
   content: ''; flex: 1; height: 1px; background: var(--border-soft);
 }
 
+/* ───────────── Settings page ───────────── */
+.settings-section { margin-bottom: 28px; }
+.settings-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+.settings-card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 4px 16px;
+  box-shadow: var(--shadow-card);
+}
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row-label {
+  font-size: 13px;
+  color: var(--ink-soft);
+  flex-shrink: 0;
+  font-family: inherit;
+}
+.settings-row-value {
+  font-size: 13px;
+  color: var(--ink);
+  text-align: right;
+  font-family: 'Noto Serif TC', serif;
+  word-break: break-all;
+}
+.settings-row-value.mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+.settings-row-value.small { font-size: 11px; color: var(--muted); }
+.settings-actions {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 12px 0;
+  border-top: 1px solid var(--border-soft);
+}
+.settings-actions:first-child { border-top: none; }
+.settings-card .settings-row + .settings-actions { border-top: 1px solid var(--border-soft); }
+.settings-actions .btn { font-size: 13px; padding: 10px 14px; }
+.settings-divider {
+  height: 1px; background: var(--border-soft); margin: 4px -16px;
+}
+.settings-hint {
+  font-size: 11px; color: var(--muted);
+  padding: 0 0 12px;
+  line-height: 1.6;
+}
+
 /* ───────────── Auth screen ───────────── */
 .auth-screen {
   position: fixed; inset: 0;
@@ -842,33 +900,51 @@ body {
 .view-btn.is-active { background: var(--paper); color: var(--ink); }
 .view-btn + .view-btn { border-left: 1px solid var(--border); }
 
-/* Grid mode for book list */
+/* Grid mode for book list — bookshelf style, auto-fill */
 .book-list.is-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 24px 14px;
 }
 .book-card-grid {
   flex-direction: column;
-  align-items: center;
-  padding: 12px;
-  text-align: center;
+  align-items: stretch;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  text-align: left;
   gap: 8px;
+}
+.book-card-grid:hover {
+  border: none;
+  transform: none;
+}
+.book-card-grid:hover .book-cover-grid {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(44,40,37,.18), inset -2px 0 0 rgba(0,0,0,.12);
 }
 .book-cover-grid {
   width: 100%;
   aspect-ratio: 2/3;
+  transition: transform .2s ease, box-shadow .2s ease;
 }
 .book-grid-info {
   width: 100%;
+  padding: 0 1px;
 }
 .book-card-grid .book-title {
-  font-size: 13px;
+  font-size: 12px;
   -webkit-line-clamp: 2;
   margin-bottom: 2px;
+  line-height: 1.45;
 }
 .book-card-grid .book-meta {
-  font-size: 11px;
+  font-size: 10px;
+  -webkit-line-clamp: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* ───────────── Status button picker (detail page) ───────────── */
@@ -1056,7 +1132,7 @@ body {
     z-index: 50;
   }
   .tab-bar::before {
-    content: '書房';
+    content: '讀書室';
     font-family: 'Noto Serif TC', serif;
     font-size: 18px; font-weight: 600;
     letter-spacing: .25em;
@@ -1064,7 +1140,7 @@ body {
     color: var(--ink);
   }
   .tab-bar::after {
-    content: 'SHUFANG · LIBRARY';
+    content: 'ARCHIVE · LIBRARY';
     font-family: 'IBM Plex Mono', monospace;
     font-size: 10px; letter-spacing: .25em;
     color: var(--muted);
@@ -1103,11 +1179,16 @@ body {
   .sub-header { padding: 16px 36px; }
   .content { padding: 24px 36px 48px; }
 
-  /* Wider book grid (2-3 cols) */
-  .book-list {
+  /* Wider book list (列表模式) */
+  .book-list:not(.is-grid) {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 12px;
+  }
+  /* Bookshelf grid on desktop */
+  .book-list.is-grid {
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    gap: 32px 18px;
   }
 
   /* Stats: 5 columns single row */
@@ -1176,8 +1257,8 @@ body {
 <!-- ───── 登入畫面（首次開啟與未登入時顯示） ───── -->
 <div id="authScreen" class="auth-screen">
   <div class="auth-card">
-    <div class="auth-brand">書房</div>
-    <div class="auth-brand-sub">SHUFANG · LIBRARY</div>
+    <div class="auth-brand">讀書室</div>
+    <div class="auth-brand-sub">ARCHIVE · LIBRARY</div>
     <div class="auth-tagline">登入帳號以同步閱讀資料到雲端</div>
     <form id="authForm" onsubmit="return false">
       <input id="authEmail" type="email" placeholder="Email" autocomplete="username" autocapitalize="off" autocorrect="off">
@@ -1211,6 +1292,7 @@ const I = {
   list:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>`,
   grid:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
   logout: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+  settings:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
 };
 
 /* ───────── DATA ───────── */
@@ -1364,6 +1446,7 @@ function render() {
   else if (parts[0] === 'new') renderForm(null, 'basic');
   else if (parts[0] === 'notes') renderNotes();
   else if (parts[0] === 'note-new') renderNoteForm();
+  else if (parts[0] === 'settings') renderSettings();
   else renderDashboard();
 
   window.scrollTo({ top: 0 });
@@ -1377,7 +1460,7 @@ function renderTabBar() {
     { id: '',         label: 'HOME',    icon: I.home,  href: '#/' },
     { id: 'library',  label: 'BOOKS',   icon: I.books, href: '#/library' },
     { id: 'notes',    label: 'NOTES',   icon: I.notes, href: '#/notes' },
-    { id: 'new',      label: 'ADD',     icon: I.add,   href: '#/new' },
+    { id: 'settings', label: 'SETTINGS',icon: I.settings, href: '#/settings' },
   ];
   tabBar().innerHTML = tabs.map(t =>
     `<button class="tab ${cur === t.id ? 'active' : ''}" onclick="navigate('${t.href}')">${t.icon}<span>${t.label}</span></button>`
@@ -1418,7 +1501,7 @@ function renderDashboard() {
     <header class="app-header">
       <div class="header-row">
         <div>
-          <div class="header-title">書房</div>
+          <div class="header-title">讀書室</div>
           <div class="header-sub">
             ${(window.fbCloud && window.fbCloud.email)
               ? `<span class="cloud-status">SYNCED · ${escapeHtml(window.fbCloud.email)}</span>`
@@ -2233,6 +2316,270 @@ function cancelNoteForm() {
   history.back();
 }
 
+/* ───────── PAGE: SETTINGS ───────── */
+const APP_VERSION = '0.4.0';
+const APP_BUILD = '2026-05-02';
+
+function renderSettings() {
+  const cloud = window.fbCloud || {};
+  const isCloud = !!cloud.email;
+  const notifPerm = (typeof Notification !== 'undefined') ? Notification.permission : 'unsupported';
+  const notifLabel = { granted: '已允許', denied: '已拒絕', default: '尚未請求', unsupported: '此瀏覽器不支援' }[notifPerm] || notifPerm;
+
+  const totalBooks = state.books.length;
+  const totalNotes = state.notes.length;
+
+  main().innerHTML = `
+    <header class="app-header">
+      <div class="header-row">
+        <div>
+          <div class="header-title">設定</div>
+          <div class="header-sub">SETTINGS</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content fade-in form-container">
+
+      <div class="settings-section">
+        <div class="settings-title">帳戶 / ACCOUNT</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">登入狀態</div>
+            <div class="settings-row-value">
+              ${isCloud
+                ? `<span class="cloud-status">SIGNED IN</span>`
+                : `<span class="cloud-status is-offline">OFFLINE</span>`}
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">Email</div>
+            <div class="settings-row-value">${escapeHtml(cloud.email || '— 未登入 —')}</div>
+          </div>
+          ${isCloud ? `
+            <div class="settings-row">
+              <div class="settings-row-label">UID</div>
+              <div class="settings-row-value mono small">${escapeHtml(cloud.uid || '')}</div>
+            </div>
+          ` : ''}
+          <div class="settings-actions">
+            ${isCloud
+              ? `<button class="btn btn-ghost" onclick="sendPasswordReset()">寄送密碼重設信</button>
+                 <button class="btn btn-danger" onclick="cloudLogout()">登出</button>`
+              : `<button class="btn btn-primary" onclick="goToLogin()">前往登入 →</button>`}
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">雲端同步 / CLOUD SYNC</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">狀態</div>
+            <div class="settings-row-value">
+              ${isCloud
+                ? `<span class="cloud-status">即時同步中</span>`
+                : `<span class="cloud-status is-offline">未連線雲端 · 資料只存本機</span>`}
+            </div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">同步資料</div>
+            <div class="settings-row-value">${totalBooks} 本書 · ${totalNotes} 則筆記</div>
+          </div>
+          ${isCloud ? `
+            <div class="settings-actions">
+              <button class="btn btn-ghost" onclick="forceCloudPush()">強制把本機推上雲端</button>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">通知與權限 / NOTIFICATIONS</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">瀏覽器通知</div>
+            <div class="settings-row-value">${escapeHtml(notifLabel)}</div>
+          </div>
+          ${notifPerm === 'default' ? `
+            <div class="settings-actions">
+              <button class="btn btn-primary" onclick="requestNotifPerm()">請求允許通知</button>
+            </div>
+          ` : ''}
+          ${notifPerm === 'denied' ? `
+            <div class="settings-hint">已封鎖，需到瀏覽器網址列旁的 🔒 圖示重新開啟</div>
+          ` : ''}
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">資料 / DATA</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">藏書</div>
+            <div class="settings-row-value">${totalBooks} 本</div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">筆記</div>
+            <div class="settings-row-value">${totalNotes} 則</div>
+          </div>
+          <div class="settings-actions">
+            <button class="btn btn-ghost" onclick="exportJson()">匯出 JSON 備份</button>
+            <button class="btn btn-ghost" onclick="exportCsv()">匯出 CSV（藏書）</button>
+          </div>
+          <div class="settings-actions">
+            <button class="btn btn-ghost" onclick="document.getElementById('importJsonInput').click()">匯入 JSON 備份</button>
+            <input id="importJsonInput" type="file" accept="application/json,.json" style="display:none" onchange="importJsonFile(this)">
+          </div>
+          <div class="settings-divider"></div>
+          <div class="settings-actions">
+            <button class="btn btn-danger" onclick="clearLocalCache()">清除本機快取（不影響雲端）</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">關於 / ABOUT</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">名稱</div>
+            <div class="settings-row-value">讀書室 ARCHIVE</div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">版本</div>
+            <div class="settings-row-value mono">v${APP_VERSION}</div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">建置日期</div>
+            <div class="settings-row-value mono small">${APP_BUILD}</div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">網址</div>
+            <div class="settings-row-value mono small">archive.jia-meiyu.com</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+/* ───────── Settings actions ───────── */
+async function sendPasswordReset() {
+  if (!window.fbCloud || !window.fbCloud.email) { alert('尚未登入'); return; }
+  if (!confirm(`將寄密碼重設信到 ${window.fbCloud.email}？`)) return;
+  try {
+    if (window.fbCloud.sendPasswordReset) {
+      await window.fbCloud.sendPasswordReset(window.fbCloud.email);
+      alert('已寄出，請至信箱收信。');
+    } else {
+      alert('此版本尚未支援，請至 Firebase Console 重設。');
+    }
+  } catch(e) {
+    alert('寄送失敗：' + (e.message || e));
+  }
+}
+
+function goToLogin() {
+  document.getElementById('authScreen')?.classList.remove('hidden');
+  const root = document.getElementById('appRoot');
+  if (root) root.style.display = 'none';
+}
+
+async function forceCloudPush() {
+  if (!window.fbCloud || !window.fbCloud.uid) { alert('尚未登入雲端'); return; }
+  if (!confirm('將以本機目前資料覆蓋雲端，確定？')) return;
+  try {
+    await window.fbCloud.saveCloud(state);
+    alert('已推送至雲端');
+  } catch(e) {
+    alert('推送失敗：' + (e.message || e));
+  }
+}
+
+async function requestNotifPerm() {
+  if (typeof Notification === 'undefined') return;
+  try {
+    await Notification.requestPermission();
+    render();
+  } catch(e) { console.error(e); }
+}
+
+function exportJson() {
+  const payload = {
+    app: 'archive',
+    version: APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    books: state.books,
+    notes: state.notes
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `archive-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportCsv() {
+  const cols = ['id','title','author','translator','publisher','year','edition','price','isbn','binding','category','tags','status','summary','coreIdea','myThoughts','designLessons','authorBg','publishBg','appliedProjects','addedAt'];
+  const csvEscape = v => {
+    const s = (v == null ? '' : Array.isArray(v) ? v.join(';') : String(v));
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+  };
+  const lines = [cols.join(',')];
+  state.books.forEach(b => lines.push(cols.map(c => csvEscape(b[c])).join(',')));
+  const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `archive-books-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importJsonFile(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.books) { alert('無效的備份檔（找不到 books 欄位）'); return; }
+      const mode = confirm('要「合併」這份備份到現有資料嗎？\n\n按「確定」＝合併（同 id 用備份覆蓋）\n按「取消」＝完全取代現有資料');
+      if (mode) {
+        const map = new Map(state.books.map(b => [b.id, b]));
+        data.books.forEach(b => map.set(b.id, b));
+        state.books = Array.from(map.values());
+        if (Array.isArray(data.notes)) {
+          const nmap = new Map(state.notes.map(n => [n.id, n]));
+          data.notes.forEach(n => nmap.set(n.id, n));
+          state.notes = Array.from(nmap.values());
+        }
+      } else {
+        if (!confirm('確定要完全取代？目前資料會消失。')) return;
+        state.books = data.books;
+        state.notes = data.notes || [];
+      }
+      save();
+      alert(`匯入完成：${state.books.length} 本書，${state.notes.length} 則筆記`);
+      render();
+    } catch(err) {
+      alert('解析失敗：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function clearLocalCache() {
+  if (!confirm('清除本機 localStorage？\n（雲端資料不受影響，下次登入會重新拉回）')) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  alert('已清除本機快取，將重新載入');
+  location.reload();
+}
+
 /* expose to global */
 window.navigate = navigate;
 window.render = render;
@@ -2255,6 +2602,14 @@ window.confirmDelete = confirmDelete;
 window.setNoteDraftField = setNoteDraftField;
 window.saveNoteForm = saveNoteForm;
 window.cancelNoteForm = cancelNoteForm;
+window.sendPasswordReset = sendPasswordReset;
+window.goToLogin = goToLogin;
+window.forceCloudPush = forceCloudPush;
+window.requestNotifPerm = requestNotifPerm;
+window.exportJson = exportJson;
+window.exportCsv = exportCsv;
+window.importJsonFile = importJsonFile;
+window.clearLocalCache = clearLocalCache;
 
 /* ───────── Cloud sync hooks (called by firebase module) ───────── */
 window.applyCloudState = function(data) {
@@ -2302,7 +2657,8 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.2/fireba
 import {
   getAuth, onAuthStateChanged,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  signOut, setPersistence, browserLocalPersistence
+  signOut, setPersistence, browserLocalPersistence,
+  sendPasswordResetEmail
 } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
 import {
   getFirestore, doc, setDoc, onSnapshot
@@ -2331,6 +2687,7 @@ window.fbCloud = {
   signIn: (email, pw) => signInWithEmailAndPassword(auth, email, pw),
   signUp: (email, pw) => createUserWithEmailAndPassword(auth, email, pw),
   signOut: () => signOut(auth),
+  sendPasswordReset: (email) => sendPasswordResetEmail(auth, email),
   saveCloud: async (state) => {
     if (!window.fbCloud.uid) return;
     const ref = doc(db, 'users', window.fbCloud.uid, 'library', 'data');
