@@ -708,6 +708,120 @@ body {
   content: ''; flex: 1; height: 1px; background: var(--border-soft);
 }
 
+/* ───────────── Auth screen ───────────── */
+.auth-screen {
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(139,111,71,.06), transparent 55%),
+    radial-gradient(circle at 80% 70%, rgba(107,68,35,.04), transparent 55%),
+    var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+.auth-screen.hidden { display: none; }
+.auth-card {
+  width: 100%; max-width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 36px 28px 28px;
+  box-shadow: 0 20px 60px rgba(44,40,37,.10);
+}
+.auth-brand {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 28px; font-weight: 600;
+  letter-spacing: .2em;
+  text-align: center;
+}
+.auth-brand-sub {
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: .3em;
+  color: var(--muted);
+  margin: 4px 0 28px;
+}
+.auth-tagline {
+  text-align: center;
+  font-size: 13px; color: var(--ink-soft);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+.auth-card form input {
+  width: 100%;
+  padding: 11px 13px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--paper-light);
+  font-family: inherit; font-size: 14px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.auth-card form input:focus {
+  border-color: var(--accent-light);
+  box-shadow: 0 0 0 3px rgba(139,111,71,.08);
+}
+.auth-error {
+  color: #B85C5C;
+  font-size: 12px;
+  margin: 4px 0 8px;
+  min-height: 18px;
+  font-family: inherit;
+}
+.auth-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all .15s;
+  letter-spacing: .05em;
+}
+.auth-btn:hover { background: var(--paper); }
+.auth-btn-primary {
+  background: var(--ink); color: var(--paper-light);
+  border-color: var(--ink);
+  font-weight: 500;
+}
+.auth-btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+.auth-btn:disabled { opacity: .5; cursor: not-allowed; }
+.auth-fallback {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-soft);
+}
+.auth-fallback a {
+  font-size: 11px; color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-family: inherit;
+}
+.auth-fallback a:hover { color: var(--ink-soft); }
+
+/* User block in sidebar (desktop) / dashboard header (mobile) */
+.cloud-status {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: .15em;
+  color: var(--muted);
+  display: inline-flex; align-items: center; gap: 5px;
+  text-transform: uppercase;
+}
+.cloud-status::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--st-read);
+}
+.cloud-status.is-offline::before { background: #C0A05A; }
+.cloud-status.is-error::before { background: #B85C5C; }
+
 /* ───────────── List / Grid view toggle ───────────── */
 .view-toggle {
   display: inline-flex;
@@ -1058,7 +1172,27 @@ body {
 </style>
 </head>
 <body>
-<div class="app">
+
+<!-- ───── 登入畫面（首次開啟與未登入時顯示） ───── -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-brand">書房</div>
+    <div class="auth-brand-sub">SHUFANG · LIBRARY</div>
+    <div class="auth-tagline">登入帳號以同步閱讀資料到雲端</div>
+    <form id="authForm" onsubmit="return false">
+      <input id="authEmail" type="email" placeholder="Email" autocomplete="username" autocapitalize="off" autocorrect="off">
+      <input id="authPassword" type="password" placeholder="密碼（6 個字元以上）" autocomplete="current-password">
+      <div class="auth-error" id="authError"></div>
+      <button class="auth-btn auth-btn-primary" type="button" id="btnSignIn">登入</button>
+      <button class="auth-btn" type="button" id="btnSignUp">註冊新帳號</button>
+    </form>
+    <div class="auth-fallback">
+      <a href="#" id="authSkip">先離線使用（資料只存本機，不同步）</a>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="appRoot" style="display:none">
   <nav class="tab-bar" id="tabBar"></nav>
   <main id="main"></main>
 </div>
@@ -1076,6 +1210,7 @@ const I = {
   add:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>`,
   list:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>`,
   grid:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
+  logout: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
 };
 
 /* ───────── DATA ───────── */
@@ -1284,9 +1419,17 @@ function renderDashboard() {
       <div class="header-row">
         <div>
           <div class="header-title">書房</div>
-          <div class="header-sub">SHUFANG · LIBRARY</div>
+          <div class="header-sub">
+            ${(window.fbCloud && window.fbCloud.email)
+              ? `<span class="cloud-status">SYNCED · ${escapeHtml(window.fbCloud.email)}</span>`
+              : `<span class="cloud-status is-offline">OFFLINE · LOCAL ONLY</span>`}
+          </div>
         </div>
-        <button class="icon-btn" onclick="navigate('#/new')" aria-label="新增">${I.plus}</button>
+        <div style="display:flex;gap:6px;align-items:center">
+          ${(window.fbCloud && window.fbCloud.email)
+            ? `<button class="icon-btn" onclick="cloudLogout()" aria-label="登出" title="登出">${I.logout}</button>` : ''}
+          <button class="icon-btn" onclick="navigate('#/new')" aria-label="新增">${I.plus}</button>
+        </div>
       </div>
     </header>
 
@@ -2092,6 +2235,7 @@ function cancelNoteForm() {
 
 /* expose to global */
 window.navigate = navigate;
+window.render = render;
 window.goLibraryFiltered = goLibraryFiltered;
 window.goLibraryByCategory = goLibraryByCategory;
 window.setStatusFilter = setStatusFilter;
@@ -2111,6 +2255,188 @@ window.confirmDelete = confirmDelete;
 window.setNoteDraftField = setNoteDraftField;
 window.saveNoteForm = saveNoteForm;
 window.cancelNoteForm = cancelNoteForm;
+
+/* ───────── Cloud sync hooks (called by firebase module) ───────── */
+window.applyCloudState = function(data) {
+  if (!data) return;
+  if (Array.isArray(data.books)) state.books = data.books;
+  if (Array.isArray(data.notes)) state.notes = data.notes;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  // 重新繪製目前頁面，但保持卷軸位置
+  const sy = window.scrollY;
+  render();
+  window.scrollTo({ top: sy });
+};
+
+window.pushLocalToCloud = async function() {
+  if (window.fbCloud && window.fbCloud.uid && window.fbCloud.saveCloud) {
+    try { await window.fbCloud.saveCloud(state); } catch(e) { console.warn('initial cloud push failed', e); }
+  }
+};
+
+// 將原本的 save() 包一層，讓本地寫入後也推到雲端
+const __origSave = save;
+save = function() {
+  __origSave();
+  if (window.fbCloud && window.fbCloud.uid && window.fbCloud.saveCloud) {
+    window.fbCloud.saveCloud(state).catch(err => {
+      console.warn('cloud save failed:', err);
+      const el = document.querySelector('.cloud-status');
+      if (el) { el.classList.add('is-error'); el.textContent = 'SYNC ERROR'; }
+    });
+  }
+};
+
+// 登出
+window.cloudLogout = async function() {
+  if (!window.fbCloud || !window.fbCloud.signOut) return;
+  if (!confirm('確定要登出？登出後其他裝置仍會保留你的資料。')) return;
+  try { await window.fbCloud.signOut(); } catch(e) { console.error(e); }
+};
+
+</script>
+
+<!-- ───────── Firebase 雲端同步模組 ───────── -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
+import {
+  getAuth, onAuthStateChanged,
+  signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  signOut, setPersistence, browserLocalPersistence
+} from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
+import {
+  getFirestore, doc, setDoc, onSnapshot
+} from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDkaBSxNLtidyBmVzsQmmpZyuWbreFGn0o",
+  authDomain: "archive-d0eb1.firebaseapp.com",
+  projectId: "archive-d0eb1",
+  storageBucket: "archive-d0eb1.firebasestorage.app",
+  messagingSenderId: "1057307058593",
+  appId: "1:1057307058593:web:732d9f06db6005334cabe0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+try { await setPersistence(auth, browserLocalPersistence); } catch(e) { console.warn(e); }
+
+window.fbCloud = {
+  ready: true,
+  uid: null,
+  email: null,
+  unsubscribe: null,
+  signIn: (email, pw) => signInWithEmailAndPassword(auth, email, pw),
+  signUp: (email, pw) => createUserWithEmailAndPassword(auth, email, pw),
+  signOut: () => signOut(auth),
+  saveCloud: async (state) => {
+    if (!window.fbCloud.uid) return;
+    const ref = doc(db, 'users', window.fbCloud.uid, 'library', 'data');
+    await setDoc(ref, {
+      books: state.books || [],
+      notes: state.notes || [],
+      updatedAt: new Date().toISOString()
+    });
+  }
+};
+
+const $ = id => document.getElementById(id);
+
+function showApp() {
+  $('authScreen')?.classList.add('hidden');
+  const root = $('appRoot');
+  if (root) root.style.display = '';
+}
+function showAuth() {
+  $('authScreen')?.classList.remove('hidden');
+  const root = $('appRoot');
+  if (root) root.style.display = 'none';
+}
+function setAuthError(msg) { const el = $('authError'); if (el) el.textContent = msg || ''; }
+function setLoading(loading) {
+  $('btnSignIn').disabled = loading;
+  $('btnSignUp').disabled = loading;
+  $('btnSignIn').textContent = loading ? '處理中…' : '登入';
+}
+
+function translateAuthError(e) {
+  const c = (e && e.code) || '';
+  if (c.includes('invalid-email'))         return 'Email 格式錯誤';
+  if (c.includes('user-not-found'))        return '找不到此帳號，請改用「註冊」';
+  if (c.includes('wrong-password'))        return '密碼錯誤';
+  if (c.includes('invalid-credential'))    return '帳號或密碼錯誤';
+  if (c.includes('email-already-in-use'))  return '此 Email 已註冊，請改用「登入」';
+  if (c.includes('weak-password'))         return '密碼至少 6 個字元';
+  if (c.includes('network'))               return '網路連線失敗，請稍後再試';
+  if (c.includes('too-many-requests'))     return '嘗試次數過多，請稍候再試';
+  return (e && e.message) || '操作失敗';
+}
+
+async function handleSignIn() {
+  const email = $('authEmail').value.trim();
+  const pw    = $('authPassword').value;
+  if (!email || !pw) { setAuthError('請填入 Email 與密碼'); return; }
+  setAuthError(''); setLoading(true);
+  try { await window.fbCloud.signIn(email, pw); }
+  catch(e) { setAuthError(translateAuthError(e)); }
+  finally { setLoading(false); }
+}
+async function handleSignUp() {
+  const email = $('authEmail').value.trim();
+  const pw    = $('authPassword').value;
+  if (!email || !pw) { setAuthError('請填入 Email 與密碼'); return; }
+  if (pw.length < 6) { setAuthError('密碼至少 6 個字元'); return; }
+  setAuthError(''); setLoading(true);
+  try { await window.fbCloud.signUp(email, pw); }
+  catch(e) { setAuthError(translateAuthError(e)); }
+  finally { setLoading(false); }
+}
+
+// 綁定登入畫面按鈕
+$('btnSignIn').addEventListener('click', handleSignIn);
+$('btnSignUp').addEventListener('click', handleSignUp);
+$('authPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSignIn(); });
+$('authSkip').addEventListener('click', (e) => {
+  e.preventDefault();
+  showApp();
+  if (window.render) window.render();
+});
+
+// 監聽登入狀態
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    window.fbCloud.uid = user.uid;
+    window.fbCloud.email = user.email;
+    showApp();
+
+    // 訂閱使用者書庫文件，雲端為真實來源
+    if (window.fbCloud.unsubscribe) window.fbCloud.unsubscribe();
+    const ref = doc(db, 'users', user.uid, 'library', 'data');
+    let firstSnap = true;
+    window.fbCloud.unsubscribe = onSnapshot(ref, async (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        if (window.applyCloudState) window.applyCloudState(data);
+      } else if (firstSnap) {
+        // 雲端尚未有資料 → 把本機目前狀態（含 SEED）一次寫上去
+        if (window.pushLocalToCloud) await window.pushLocalToCloud();
+        if (window.render) window.render();
+      }
+      firstSnap = false;
+    }, (err) => {
+      console.error('Firestore 監聽錯誤:', err);
+      const el = document.querySelector('.cloud-status');
+      if (el) { el.classList.add('is-error'); el.textContent = 'SYNC ERROR'; }
+    });
+  } else {
+    window.fbCloud.uid = null;
+    window.fbCloud.email = null;
+    if (window.fbCloud.unsubscribe) { window.fbCloud.unsubscribe(); window.fbCloud.unsubscribe = null; }
+    showAuth();
+  }
+});
 </script>
 </body>
 </html>
